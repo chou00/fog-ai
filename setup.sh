@@ -25,7 +25,21 @@ fi
 
 # Update package list
 echo -e "${YELLOW}[1/5] Updating package list...${NC}"
-$SUDO apt-get update -qq
+if ! $SUDO apt-get update -qq 2>&1 | grep -q "GPG error\|NO_PUBKEY"; then
+    echo -e "${GREEN}Package list updated successfully${NC}"
+else
+    echo -e "${RED}GPG key error detected!${NC}"
+    echo -e "${YELLOW}Please run: ./fix_kali_gpg.sh${NC}"
+    echo -e "${YELLOW}Or manually fix with:${NC}"
+    echo -e "${YELLOW}  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ED65462EC8D5E4C5${NC}"
+    echo -e "${YELLOW}  sudo apt-get update${NC}"
+    echo ""
+    read -p "Continue anyway? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
 
 # Install system dependencies
 echo -e "${YELLOW}[2/5] Installing system dependencies...${NC}"
